@@ -1,0 +1,11 @@
+{
+  "@odata.count": 1,
+  "value": [
+    {
+      "Id": "committee-1",
+      "Naam": "Commissie voor Binnenlandse Zaken",
+      "Afkorting": "BZK",
+      "Verwijderd": false
+    }
+  ]
+}

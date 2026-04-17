@@ -1,0 +1,12 @@
+{
+  "@odata.count": 1,
+  "value": [
+    {
+      "Id": "dossier-1",
+      "Nummer": 36228,
+      "Titel": "Wijziging Woningwet",
+      "Afgesloten": false,
+      "Kamer": "Tweede Kamer"
+    }
+  ]
+}

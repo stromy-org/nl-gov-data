@@ -1,0 +1,30 @@
+{
+  "@odata.count": 1,
+  "value": [
+    {
+      "Id": "doc-1",
+      "Verwijderd": false,
+      "Titel": "Motie over woningbouw",
+      "Soort": "Motie",
+      "Onderwerp": "Motie over woningbouw en stikstof",
+      "Nummer": "3",
+      "Datum": "2026-04-10",
+      "DatumRegistratie": "2026-04-09",
+      "GewijzigdOp": "2026-04-11T10:00:00Z",
+      "Zaak": {
+        "Titel": "Wijziging Woningwet",
+        "Kamerstukdossier": {
+          "Nummer": 36228,
+          "Titel": "Wijziging Woningwet"
+        }
+      },
+      "DocumentActor": [
+        {
+          "Persoon": {
+            "Naam": "Jan Jansen"
+          }
+        }
+      ]
+    }
+  ]
+}

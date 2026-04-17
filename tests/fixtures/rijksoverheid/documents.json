@@ -1,0 +1,19 @@
+{
+  "results": [
+    {
+      "id": "rijk-doc-1",
+      "title": "Kamerbrief over woningbouw",
+      "type": "parliamentarydocument",
+      "available": "2026-04-08",
+      "issued": "2026-04-07",
+      "lastmodified": "2026-04-08T12:00:00Z",
+      "introduction": "<p>Inleiding over woningbouw.</p>",
+      "organisationalUnit": "Ministerie van Volkshuisvesting",
+      "subject": ["Wonen"],
+      "url": "https://rijk.test/documents/rijk-doc-1"
+    }
+  ],
+  "meta": {
+    "total": 1
+  }
+}

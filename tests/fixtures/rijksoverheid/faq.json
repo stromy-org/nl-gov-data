@@ -1,0 +1,18 @@
+{
+  "results": [
+    {
+      "id": "rijk-faq-1",
+      "title": "Vraag en antwoord over huurwoningen",
+      "type": "vraag en antwoord",
+      "available": "2026-04-05",
+      "lastmodified": "2026-04-05T07:00:00Z",
+      "introduction": "<p>Veelgestelde vragen over woningbouw.</p>",
+      "ministerie": "Ministerie van Volkshuisvesting",
+      "subjects": ["Wonen"],
+      "url": "https://rijk.test/faq/rijk-faq-1"
+    }
+  ],
+  "meta": {
+    "total": 1
+  }
+}

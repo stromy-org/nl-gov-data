@@ -1,0 +1,18 @@
+{
+  "results": [
+    {
+      "id": "rijk-news-1",
+      "title": "Nieuws over woningbouw",
+      "type": "nieuwsbericht",
+      "available": "2026-04-06",
+      "lastmodified": "2026-04-06T09:00:00Z",
+      "introduction": "<p>Nieuwsbericht over woningbouw.</p>",
+      "ministerie": "Ministerie van Volkshuisvesting",
+      "subjects": ["Wonen"],
+      "url": "https://rijk.test/news/rijk-news-1"
+    }
+  ],
+  "meta": {
+    "total": 1
+  }
+}

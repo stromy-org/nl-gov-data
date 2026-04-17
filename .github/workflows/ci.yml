@@ -1,0 +1,11 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  python-ci:
+    uses: stromy-org/stromy-org/.github/workflows/ci-python.yml@main
+    with:
+      source_package: "nlgovdata"

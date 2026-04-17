@@ -1,0 +1,29 @@
+{
+  "@odata.count": 1,
+  "value": [
+    {
+      "Id": "vote-1",
+      "Verwijderd": false,
+      "Uitslag": "Aangenomen",
+      "BesluitTekst": "Motie aangenomen",
+      "Datum": "2026-04-13T14:00:00Z",
+      "FractiesVoor": [
+        {
+          "Naam": "PvdA",
+          "Zetels": 25
+        }
+      ],
+      "FractiesTegen": [
+        {
+          "Naam": "VVD",
+          "Zetels": 24
+        }
+      ],
+      "Besluit": {
+        "Document": {
+          "Titel": "Motie over woningbouw"
+        }
+      }
+    }
+  ]
+}

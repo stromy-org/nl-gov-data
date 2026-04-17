@@ -1,0 +1,34 @@
+<zs:searchRetrieveResponse xmlns:zs="http://www.loc.gov/zing/srw/"
+  xmlns:gzd="http://standaarden.overheid.nl/sru"
+  xmlns:owmskern="http://standaarden.overheid.nl/owms/terms/"
+  xmlns:dt="http://purl.org/dc/terms/"
+  xmlns:w="http://repository.overheid.nl/frbr/work/"
+  xmlns:c="http://standaarden.overheid.nl/cpv/">
+  <zs:numberOfRecords>1</zs:numberOfRecords>
+  <zs:records>
+    <zs:record>
+      <zs:recordSchema>gzd</zs:recordSchema>
+      <zs:recordPosition>1</zs:recordPosition>
+      <zs:recordIdentifier>kst-36228-3</zs:recordIdentifier>
+      <zs:recordData>
+        <gzd:originalData>
+          <owmskern:identifier>kst-36228-3</owmskern:identifier>
+          <owmskern:title>Motie over woningbouw</owmskern:title>
+          <dt:type>Kamerstuk</dt:type>
+          <dt:modified>2026-04-09T11:00:00Z</dt:modified>
+          <dt:available>2026-04-09</dt:available>
+          <dt:issued>2026-04-08</dt:issued>
+          <dt:creator>Tweede Kamer der Staten-Generaal</dt:creator>
+          <dt:description>Publicatie over woningbouw.</dt:description>
+          <w:dossiernummer>36228</w:dossiernummer>
+          <w:ondernummer>3</w:ondernummer>
+          <w:subrubriek>Motie</w:subrubriek>
+          <c:product-area>Wonen</c:product-area>
+          <gzd:preferred-url>https://koop.test/kst-36228-3</gzd:preferred-url>
+          <gzd:portal-url>https://koop.test/portal/kst-36228-3</gzd:portal-url>
+          <gzd:pdf-url>https://koop.test/pdf/kst-36228-3.pdf</gzd:pdf-url>
+        </gzd:originalData>
+      </zs:recordData>
+    </zs:record>
+  </zs:records>
+</zs:searchRetrieveResponse>

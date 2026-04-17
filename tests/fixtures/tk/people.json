@@ -1,0 +1,25 @@
+{
+  "@odata.count": 2,
+  "value": [
+    {
+      "Id": "person-1",
+      "Roepnaam": "Jan",
+      "Achternaam": "Jansen",
+      "Naam": "Jan Jansen",
+      "Verwijderd": false,
+      "Fractie": {
+        "Afkorting": "PvdA"
+      }
+    },
+    {
+      "Id": "person-2",
+      "Roepnaam": "Janneke",
+      "Achternaam": "Jansen",
+      "Naam": "Janneke Jansen",
+      "Verwijderd": false,
+      "Fractie": {
+        "Afkorting": "GL"
+      }
+    }
+  ]
+}

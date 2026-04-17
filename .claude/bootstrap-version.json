@@ -1,0 +1,29 @@
+{
+  "bootstrap_commit": "405bb2d21a8729a64edcad0c1b9c802030d89881",
+  "bootstrap_date": "2026-04-16T15:31:41.354335+00:00",
+  "skills_version": "2.2",
+  "repo_profile": "mcp-server",
+  "skills_generated": [
+    "quality-check",
+    "instruction-audit"
+  ],
+  "skill_checksums": {
+    "quality-check": "sha256:5303760b272d337c12516fb76f78af63cc94ba55455fdeb57968ca695a7e33ac",
+    "instruction-audit": "sha256:9efa91c1a20b0bfb9c3edb6233db5ac64e7d6b2ee31799fa4f3f099fbc764c89"
+  },
+  "custom_adaptations": {},
+  "copied_files": [],
+  "adapted_files": [],
+  "files_generated": [
+    "CLAUDE.md",
+    "AGENTS.md",
+    ".claude/rules/dev-patterns.md",
+    ".claude/rules/testing-rules.md",
+    ".claude/settings.json",
+    ".claude/hooks/ruff-check.sh",
+    ".codex/config.toml",
+    "docs/overview.md",
+    "docs/development.md",
+    ".github/workflows/ci.yml"
+  ]
+}

@@ -1,0 +1,25 @@
+{
+  "@odata.count": 1,
+  "value": [
+    {
+      "Id": "activity-1",
+      "Verwijderd": false,
+      "Soort": "Debat",
+      "Onderwerp": "Plenair debat woningbouw",
+      "Datum": "2026-04-12",
+      "Aanvangstijd": "10:00:00",
+      "Eindtijd": "12:00:00",
+      "Status": "Gepland",
+      "Commissie": {
+        "Naam": "Commissie voor Binnenlandse Zaken"
+      },
+      "ActiviteitActor": [
+        {
+          "Persoon": {
+            "Naam": "Jan Jansen"
+          }
+        }
+      ]
+    }
+  ]
+}

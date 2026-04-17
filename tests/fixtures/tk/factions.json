@@ -1,0 +1,12 @@
+{
+  "@odata.count": 1,
+  "value": [
+    {
+      "Id": "faction-1",
+      "Naam": "Partij van de Arbeid",
+      "Afkorting": "PvdA",
+      "ZetelAantal": 25,
+      "Verwijderd": false
+    }
+  ]
+}
