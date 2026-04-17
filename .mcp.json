@@ -1,0 +1,9 @@
+{
+  "mcpServers": {
+    "nl-gov-data": {
+      "command": "uv",
+      "args": ["run", "nlgovdata", "serve"],
+      "env": {}
+    }
+  }
+}
