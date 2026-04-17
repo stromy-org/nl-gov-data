@@ -3,8 +3,10 @@
   "value": [
     {
       "Id": "committee-1",
-      "Naam": "Commissie voor Binnenlandse Zaken",
+      "NaamNL": "Commissie voor Binnenlandse Zaken",
       "Afkorting": "BZK",
+      "DatumActief": "2021-03-31T00:00:00+02:00",
+      "DatumInactief": null,
       "Verwijderd": false
     }
   ]

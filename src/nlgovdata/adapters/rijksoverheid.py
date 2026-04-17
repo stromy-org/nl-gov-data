@@ -6,7 +6,12 @@ from typing import Any
 
 from nlgovdata.core.config import AppConfig
 from nlgovdata.core.schema import SourceResponse
-from nlgovdata.core.types import RIJK_DOC_TYPE_FILTERS, RIJKSOVERHEID_ENDPOINTS
+from nlgovdata.core.types import (
+    RIJK_DOC_TYPE_FILTERS,
+    RIJKSOVERHEID_ENDPOINT_ALIASES,
+    RIJKSOVERHEID_ENDPOINTS,
+    slugify,
+)
 from nlgovdata.utils.http import HttpRequester
 
 
@@ -18,9 +23,12 @@ class RijksoverheidAdapter:
         self.requester = requester
 
     def _resolve_endpoint(self, endpoint: str) -> str:
-        if endpoint not in RIJKSOVERHEID_ENDPOINTS:
-            raise ValueError(f"Unsupported Rijksoverheid endpoint: {endpoint}")
-        return RIJKSOVERHEID_ENDPOINTS[endpoint]
+        normalized = slugify(endpoint)
+        canonical = RIJKSOVERHEID_ENDPOINT_ALIASES.get(normalized, normalized)
+        if canonical not in RIJKSOVERHEID_ENDPOINTS:
+            valid = ", ".join(RIJKSOVERHEID_ENDPOINTS)
+            raise ValueError(f"Unsupported Rijksoverheid endpoint: {endpoint}. Use one of: {valid}")
+        return canonical
 
     def _extract_results(self, payload: Any) -> list[dict[str, Any]]:
         if isinstance(payload, list):
@@ -57,7 +65,8 @@ class RijksoverheidAdapter:
         rows: int = 25,
         offset: int = 0,
     ) -> SourceResponse:
-        path = self._resolve_endpoint(endpoint)
+        endpoint = self._resolve_endpoint(endpoint)
+        path = RIJKSOVERHEID_ENDPOINTS[endpoint]
         params: dict[str, Any] = {"output": "json", "rows": min(rows, 200), "offset": offset}
 
         if endpoint == "documents":
@@ -93,7 +102,8 @@ class RijksoverheidAdapter:
         )
 
     def get(self, endpoint: str, item_id: str) -> dict[str, Any]:
-        path = self._resolve_endpoint(endpoint)
+        endpoint = self._resolve_endpoint(endpoint)
+        path = RIJKSOVERHEID_ENDPOINTS[endpoint]
         return self.requester.get_json(
             self.source_name,
             f"{self.config.rijk_base_url.rstrip('/')}/{path}/{item_id}",

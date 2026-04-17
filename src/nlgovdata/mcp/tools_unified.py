@@ -29,6 +29,13 @@ def _source_warning(source: str, exc: Exception) -> str:
     return f"{source} failed: {exc}"
 
 
+def _next_offset(total_count: int | None, offset: int, returned_count: int) -> int | None:
+    if total_count is None:
+        return None
+    next_value = offset + returned_count
+    return next_value if next_value < total_count else None
+
+
 async def _run_source_call(
     source: str,
     func: Callable[[], SourceResponse],
@@ -176,26 +183,32 @@ def register_unified_tools(mcp: FastMCP, services: ServiceContainer) -> None:
         return (await _run()).to_payload()
 
     @mcp.tool
-    async def get_dossier_timeline(dossier_number: str) -> dict[str, Any]:
-        """Return a deterministic dossier timeline using TK and KOOP."""
+    async def get_dossier_timeline(
+        dossier_number: str,
+        max_results_per_source: int = 10,
+        timeline_limit: int = 40,
+    ) -> dict[str, Any]:
+        """Return a bounded deterministic dossier timeline using TK and KOOP."""
+        source_limit = max(1, min(max_results_per_source, 100))
+        capped_timeline_limit = max(1, timeline_limit)
 
         async def _run() -> dict[str, Any]:
             tasks = await asyncio.gather(
                 _run_source_call(
                     "tk_documents",
-                    lambda: services.tk.search_documents(dossier_number=dossier_number, max_results=100),
+                    lambda: services.tk.search_documents(dossier_number=dossier_number, max_results=source_limit),
                 ),
                 _run_source_call(
                     "koop_documents",
-                    lambda: services.koop.search_documents(dossier_number=dossier_number, max_results=100),
+                    lambda: services.koop.search_documents(dossier_number=dossier_number, max_results=source_limit),
                 ),
                 _run_source_call(
                     "activities",
-                    lambda: services.tk.search_activities(dossier_number=dossier_number, top=100),
+                    lambda: services.tk.search_activities(dossier_number=dossier_number, top=source_limit),
                 ),
                 _run_source_call(
                     "votes",
-                    lambda: services.tk.search_votes(dossier_number=dossier_number, top=100),
+                    lambda: services.tk.search_votes(dossier_number=dossier_number, top=source_limit),
                 ),
             )
 
@@ -216,7 +229,11 @@ def register_unified_tools(mcp: FastMCP, services: ServiceContainer) -> None:
                 [normalize_vote(row) for row in vote_response.results] if vote_response else [],
                 warnings=warnings,
             )
-            return timeline.to_payload()
+            payload = timeline.to_payload()
+            payload["timeline"] = payload["timeline"][:capped_timeline_limit]
+            payload["truncated"] = payload["total_count"] is not None and payload["total_count"] > capped_timeline_limit
+            payload["returned_count"] = len(payload["timeline"])
+            return payload
 
         return await _run()
 
@@ -229,8 +246,9 @@ def register_unified_tools(mcp: FastMCP, services: ServiceContainer) -> None:
         keyword: str | None = None,
         dossier_number: str | None = None,
         actor: str | None = None,
+        max_results: int = 20,
     ) -> dict[str, Any]:
-        """Return normalized parliamentary activities from TK."""
+        """Return normalized parliamentary activities from TK with bounded results."""
         response = services.tk.search_activities(
             date_from=date_from,
             date_to=date_to,
@@ -239,6 +257,7 @@ def register_unified_tools(mcp: FastMCP, services: ServiceContainer) -> None:
             keyword=keyword,
             dossier_number=dossier_number,
             actor=actor,
+            top=max_results,
         )
         results = [normalize_activity(row).to_payload() for row in response.results]
         return UnifiedResponse(
@@ -255,14 +274,16 @@ def register_unified_tools(mcp: FastMCP, services: ServiceContainer) -> None:
         dossier_number: str | None = None,
         outcome: str | None = None,
         faction: str | None = None,
+        max_results: int = 20,
     ) -> dict[str, Any]:
-        """Return normalized vote results from TK."""
+        """Return normalized vote results from TK with bounded results."""
         response = services.tk.search_votes(
             date_from=date_from,
             date_to=date_to,
             dossier_number=dossier_number,
             outcome=outcome,
             faction=faction,
+            top=max_results,
         )
         results = [normalize_vote(row).to_payload() for row in response.results]
         return UnifiedResponse(
@@ -284,47 +305,51 @@ def register_unified_tools(mcp: FastMCP, services: ServiceContainer) -> None:
         }
 
     @mcp.tool
-    def list_factions() -> dict[str, Any]:
-        """List active TK factions with seat counts."""
-        response = services.tk.list_factions()
+    def list_factions(limit: int = 25, offset: int = 0) -> dict[str, Any]:
+        """List active TK factions with seat counts using bounded pagination."""
+        response = services.tk.list_factions(limit=limit, offset=offset)
         results = [normalize_faction(row).to_payload() for row in response.results]
         return UnifiedResponse(
             total_count=response.total_count,
             returned_count=len(results),
             results=results,
+            next_offset=_next_offset(response.total_count, offset, len(results)),
             warnings=response.warnings,
         ).to_payload()
 
     @mcp.tool
-    def list_committees() -> dict[str, Any]:
-        """List active TK committees."""
-        response = services.tk.list_committees()
+    def list_committees(limit: int = 25, offset: int = 0) -> dict[str, Any]:
+        """List active TK committees using bounded pagination."""
+        response = services.tk.list_committees(limit=limit, offset=offset)
         results = [normalize_committee(row).to_payload() for row in response.results]
         return UnifiedResponse(
             total_count=response.total_count,
             returned_count=len(results),
             results=results,
+            next_offset=_next_offset(response.total_count, offset, len(results)),
             warnings=response.warnings,
         ).to_payload()
 
     @mcp.tool
-    def list_ministries() -> dict[str, Any]:
-        """List Rijksoverheid ministries."""
-        results = services.rijk.list_ministries()
+    def list_ministries(limit: int = 25, offset: int = 0) -> dict[str, Any]:
+        """List Rijksoverheid ministries using bounded pagination."""
+        response = services.rijk.search("ministry", rows=limit, offset=offset)
         return UnifiedResponse(
-            total_count=len(results),
-            returned_count=len(results),
-            results=results,
-            warnings=[],
+            total_count=response.total_count,
+            returned_count=response.returned_count,
+            results=response.results,
+            next_offset=_next_offset(response.total_count, offset, response.returned_count),
+            warnings=response.warnings,
         ).to_payload()
 
     @mcp.tool
-    def list_subjects() -> dict[str, Any]:
-        """List Rijksoverheid subjects."""
-        results = services.rijk.list_subjects()
+    def list_subjects(limit: int = 25, offset: int = 0) -> dict[str, Any]:
+        """List Rijksoverheid subjects using bounded pagination."""
+        response = services.rijk.search("subject", rows=limit, offset=offset)
         return UnifiedResponse(
-            total_count=len(results),
-            returned_count=len(results),
-            results=results,
-            warnings=[],
+            total_count=response.total_count,
+            returned_count=response.returned_count,
+            results=response.results,
+            next_offset=_next_offset(response.total_count, offset, response.returned_count),
+            warnings=response.warnings,
         ).to_payload()

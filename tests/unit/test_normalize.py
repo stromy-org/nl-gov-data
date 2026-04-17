@@ -5,7 +5,9 @@ import pytest
 from nlgovdata.core.normalize import (
     build_dossier_timeline,
     normalize_activity,
+    normalize_committee,
     normalize_dossier,
+    normalize_faction,
     normalize_koop_document,
     normalize_tk_document,
     normalize_vote,
@@ -43,6 +45,7 @@ def test_build_dossier_timeline_orders_mixed_events() -> None:
         votes=[vote],
     )
 
+    assert timeline.total_count == 4
     assert timeline.returned_count == 4
     assert [event["event_type"] for event in timeline.timeline] == ["document", "document", "activity", "vote"]
 
@@ -59,6 +62,27 @@ def test_build_dossier_timeline_adds_fallback_anchor_when_empty() -> None:
         votes=[],
     )
 
+    assert timeline.total_count == 1
     assert timeline.returned_count == 1
     assert timeline.timeline[0]["event_type"] == "dossier"
     assert timeline.timeline[0]["metadata"]["fallback"] is True
+
+
+def test_normalize_faction_supports_live_tk_shape() -> None:
+    row = load_json_fixture("tk/factions.json")["value"][0]
+
+    faction = normalize_faction(row)
+
+    assert faction.name == "Partij van de Arbeid"
+    assert faction.abbreviation == "PvdA"
+    assert faction.seats == 25
+    assert faction.active is True
+
+
+def test_normalize_committee_supports_live_tk_shape() -> None:
+    row = load_json_fixture("tk/committees.json")["value"][0]
+
+    committee = normalize_committee(row)
+
+    assert committee.name == "Commissie voor Binnenlandse Zaken"
+    assert committee.abbreviation == "BZK"

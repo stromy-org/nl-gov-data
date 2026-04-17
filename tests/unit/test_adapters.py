@@ -60,6 +60,52 @@ def test_tk_search_votes_builds_live_safe_filters(app_config) -> None:
     assert "(ActorFractie eq 'GL-PvdA' or ActorNaam eq 'GL-PvdA')" in filter_value
 
 
+def test_tk_list_factions_uses_live_safe_sort_and_active_filter(app_config) -> None:
+    requester = FakeRequester(json_responses={"Fractie": load_json_fixture("tk/factions.json")})
+    adapter = TweedeKamerAdapter(app_config, requester)
+
+    response = adapter.list_factions(limit=10, offset=5)
+
+    assert response.source == "tk"
+    assert response.results[0]["NaamNL"] == "Partij van de Arbeid"
+    assert requester.calls[0]["params"]["$filter"] == "Verwijderd eq false and DatumActief ne null and DatumInactief eq null"
+    assert requester.calls[0]["params"]["$orderby"] == "NaamNL asc"
+    assert requester.calls[0]["params"]["$top"] == "10"
+    assert requester.calls[0]["params"]["$skip"] == "5"
+
+
+def test_tk_list_committees_uses_live_safe_sort_and_active_filter(app_config) -> None:
+    requester = FakeRequester(json_responses={"Commissie": load_json_fixture("tk/committees.json")})
+    adapter = TweedeKamerAdapter(app_config, requester)
+
+    response = adapter.list_committees(limit=10, offset=5)
+
+    assert response.source == "tk"
+    assert response.results[0]["NaamNL"] == "Commissie voor Binnenlandse Zaken"
+    assert requester.calls[0]["params"]["$filter"] == "Verwijderd eq false and DatumActief ne null and DatumInactief eq null"
+    assert requester.calls[0]["params"]["$orderby"] == "NaamNL asc"
+    assert requester.calls[0]["params"]["$top"] == "10"
+    assert requester.calls[0]["params"]["$skip"] == "5"
+
+
+def test_rijk_search_accepts_alias_endpoint(app_config) -> None:
+    requester = FakeRequester(json_responses={"documents": load_json_fixture("rijksoverheid/documents.json")})
+    adapter = RijksoverheidAdapter(app_config, requester)
+
+    response = adapter.search("documenten", rows=3)
+
+    assert response.source == "rijksoverheid"
+    assert requester.calls[0]["url"] == "https://rijk.test/v1/documents"
+
+
+def test_rijk_search_invalid_endpoint_lists_canonical_values(app_config) -> None:
+    requester = FakeRequester()
+    adapter = RijksoverheidAdapter(app_config, requester)
+
+    with pytest.raises(ValueError, match="Use one of: documents, news, faq, subject, ministry"):
+        adapter.search("nieuwsbrieven")
+
+
 def test_rijk_search_documents_fans_out_and_filters_keyword(app_config) -> None:
     requester = FakeRequester(
         json_responses={

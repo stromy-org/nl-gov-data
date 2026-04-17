@@ -20,7 +20,10 @@ def register_rijk_tools(mcp: FastMCP, services: ServiceContainer) -> None:
         rows: int = 25,
         offset: int = 0,
     ) -> dict[str, Any]:
-        """Search a Rijksoverheid endpoint with native filtering and pagination."""
+        """Search a Rijksoverheid endpoint with native filtering and pagination.
+
+        Canonical endpoints are: documents, news, faq, subject, ministry.
+        """
         return services.rijk.search(
             endpoint,
             doc_type=type,

@@ -207,11 +207,23 @@ class TweedeKamerAdapter:
         )
         return self.search("Persoon", filter_value=filter_value, orderby="Achternaam asc", top=top)
 
-    def list_factions(self) -> SourceResponse:
-        return self.search("Fractie", filter_value="Verwijderd eq false", orderby="Naam asc", top=100)
+    def list_factions(self, *, limit: int = 100, offset: int = 0) -> SourceResponse:
+        return self.search(
+            "Fractie",
+            filter_value="Verwijderd eq false and DatumActief ne null and DatumInactief eq null",
+            orderby="NaamNL asc",
+            top=limit,
+            skip=offset,
+        )
 
-    def list_committees(self) -> SourceResponse:
-        return self.search("Commissie", filter_value="Verwijderd eq false", orderby="Naam asc", top=100)
+    def list_committees(self, *, limit: int = 100, offset: int = 0) -> SourceResponse:
+        return self.search(
+            "Commissie",
+            filter_value="Verwijderd eq false and DatumActief ne null and DatumInactief eq null",
+            orderby="NaamNL asc",
+            top=limit,
+            skip=offset,
+        )
 
     def get_dossier(self, dossier_number: str) -> dict[str, Any] | None:
         response = self.search(

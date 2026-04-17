@@ -251,8 +251,10 @@ def normalize_member(record: dict[str, Any]) -> ParliamentMember:
         record,
         ("Fractielabel",),
         ("Fractie", "Afkorting"),
+        ("Fractie", "NaamNL"),
         ("Fractie", "Naam"),
         ("FractieZetelPersoon", "FractieZetel", "Fractie", "Afkorting"),
+        ("FractieZetelPersoon", "FractieZetel", "Fractie", "NaamNL"),
     )
     return ParliamentMember(
         id=f"tk:{record.get('Id', 'unknown')}",
@@ -265,12 +267,14 @@ def normalize_member(record: dict[str, Any]) -> ParliamentMember:
 
 
 def normalize_faction(record: dict[str, Any]) -> Faction:
+    active = not bool(record.get("Verwijderd")) and not bool(record.get("DatumInactief"))
+    name = record.get("NaamNL") or record.get("Naam") or "Unknown faction"
     return Faction(
         id=f"tk:{record.get('Id', 'unknown')}",
-        name=record.get("Naam") or "Unknown faction",
-        abbreviation=record.get("Afkorting") or record.get("Naam") or "unknown",
-        seats=int(record.get("ZetelAantal") or 0),
-        active=not bool(record.get("Verwijderd")),
+        name=name,
+        abbreviation=record.get("Afkorting") or name,
+        seats=int(record.get("AantalZetels") or record.get("ZetelAantal") or 0),
+        active=active,
         metadata=record,
     )
 
@@ -278,7 +282,7 @@ def normalize_faction(record: dict[str, Any]) -> Faction:
 def normalize_committee(record: dict[str, Any]) -> Committee:
     return Committee(
         id=f"tk:{record.get('Id', 'unknown')}",
-        name=record.get("Naam") or "Unknown committee",
+        name=record.get("NaamNL") or record.get("Naam") or "Unknown committee",
         abbreviation=record.get("Afkorting"),
         metadata=record,
     )
@@ -407,6 +411,7 @@ def build_dossier_timeline(
     return DossierTimelineResponse(
         dossier_number=dossier_number,
         dossier=dossier,
+        total_count=len(payload),
         returned_count=len(payload),
         timeline=payload,
         warnings=warnings or [],

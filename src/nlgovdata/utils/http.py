@@ -17,6 +17,44 @@ logger = logging.getLogger(__name__)
 class UpstreamRequestError(RuntimeError):
     """Raised when an upstream request fails after retries."""
 
+    def __init__(
+        self,
+        source: str,
+        url: str,
+        kind: str,
+        detail: str,
+        *,
+        status_code: int | None = None,
+    ) -> None:
+        self.source = source
+        self.url = url
+        self.kind = kind
+        self.detail = detail
+        self.status_code = status_code
+        status_text = f", status={status_code}" if status_code is not None else ""
+        super().__init__(f"{source} request failed ({kind}{status_text}) for {url}: {detail}")
+
+
+def _classify_http_error(exc: Exception) -> tuple[str, int | None, str]:
+    if isinstance(exc, httpx.TimeoutException):
+        return "timeout", None, str(exc)
+    if isinstance(exc, httpx.NetworkError):
+        return "network", None, str(exc)
+    if isinstance(exc, httpx.HTTPStatusError):
+        status_code = exc.response.status_code
+        if status_code == 429:
+            kind = "rate_limited"
+        elif 500 <= status_code:
+            kind = "upstream_server"
+        elif 400 <= status_code:
+            kind = "upstream_validation"
+        else:
+            kind = "http_error"
+        return kind, status_code, str(exc)
+    if isinstance(exc, ValueError):
+        return "invalid_payload", None, str(exc)
+    return "request_error", None, str(exc)
+
 
 class HttpRequester:
     """Thin wrapper over httpx with retry, pacing, and structured logging."""
@@ -69,7 +107,8 @@ class HttpRequester:
                     break
                 self._sleep(min(attempt, 3))
 
-        raise UpstreamRequestError(f"{source} request failed for {url}: {last_error}") from last_error
+        kind, status_code, detail = _classify_http_error(last_error or RuntimeError("unknown request failure"))
+        raise UpstreamRequestError(source, url, kind, detail, status_code=status_code) from last_error
 
     def get_json(
         self,

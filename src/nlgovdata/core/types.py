@@ -30,6 +30,21 @@ RIJKSOVERHEID_ENDPOINTS: Final[dict[str, str]] = {
     "ministry": "infotypes/ministry",
 }
 
+RIJKSOVERHEID_ENDPOINT_ALIASES: Final[dict[str, str]] = {
+    "documenten": "documents",
+    "nieuws": "news",
+    "nieuwsberichten": "news",
+    "vraag en antwoord": "faq",
+    "vragen en antwoorden": "faq",
+    "faqs": "faq",
+    "onderwerp": "subject",
+    "onderwerpen": "subject",
+    "subjects": "subject",
+    "ministerie": "ministry",
+    "ministeries": "ministry",
+    "ministries": "ministry",
+}
+
 KOOP_COLLECTIONS: Final[frozenset[str]] = frozenset(
     {
         "officielepublicaties",

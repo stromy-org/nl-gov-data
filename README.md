@@ -101,3 +101,31 @@ Smoke tests are intentionally opt-in. They hit the real upstream APIs and are sk
 NLGOVDATA_RUN_SMOKE=1 uv run pytest -m smoke -v
 uv run nlgovdata test-connection --format text
 ```
+
+## Remote FastMCP Test Sequence
+
+For Cowork or Claude Desktop exploration against the hosted server, use bounded calls first. This avoids token spill and keeps failures easier to isolate.
+
+Recommended order:
+
+1. `list_ministries(limit=10)`
+2. `list_subjects(limit=10)`
+3. `list_factions(limit=10)`
+4. `list_committees(limit=10)`
+5. `rijksoverheid_search(endpoint="documents", rows=3)`
+6. `search_documents(max_results=5)`
+7. `search_activities(max_results=10)`
+8. `search_votes(max_results=10)`
+9. `get_dossier_timeline(dossier_number="26643", max_results_per_source=5, timeline_limit=20)`
+
+Canonical `rijksoverheid_search` endpoints are:
+
+- `documents`
+- `news`
+- `faq`
+- `subject`
+- `ministry`
+
+Common Dutch aliases such as `documenten`, `nieuws`, `onderwerpen`, and `ministeries` are accepted, but the canonical names above should be preferred in examples and automated tests.
+
+If a tool errors, treat that as a real quality signal and continue testing the remaining bounded tools individually instead of starting with a large parallel batch.

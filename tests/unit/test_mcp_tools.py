@@ -35,11 +35,13 @@ def _build_services() -> SimpleNamespace:
             del query
             return SourceResponse("tk", 2, 2, None, load_json_fixture("tk/people.json")["value"])
 
-        def list_factions(self) -> SourceResponse:
-            return SourceResponse("tk", 1, 1, None, load_json_fixture("tk/factions.json")["value"])
+        def list_factions(self, *, limit: int = 100, offset: int = 0) -> SourceResponse:
+            del limit, offset
+            return SourceResponse("tk", 30, 1, None, load_json_fixture("tk/factions.json")["value"])
 
-        def list_committees(self) -> SourceResponse:
-            return SourceResponse("tk", 1, 1, None, load_json_fixture("tk/committees.json")["value"])
+        def list_committees(self, *, limit: int = 100, offset: int = 0) -> SourceResponse:
+            del limit, offset
+            return SourceResponse("tk", 30, 1, None, load_json_fixture("tk/committees.json")["value"])
 
         def get_dossier(self, dossier_number: str):
             del dossier_number
@@ -72,7 +74,7 @@ def _build_services() -> SimpleNamespace:
             del args, kwargs
             return SourceResponse(
                 "rijksoverheid",
-                1,
+                5,
                 1,
                 None,
                 load_json_fixture("rijksoverheid/documents.json")["results"],
@@ -138,6 +140,49 @@ def test_get_member_returns_multiple_matches() -> None:
 
     assert payload["returned_count"] == 2
     assert {item["name"] for item in payload["results"]} == {"Jan Jansen", "Janneke Jansen"}
+
+
+def test_list_tools_expose_next_offset_and_bounded_params() -> None:
+    mcp = FastMCP("test")
+    register_unified_tools(mcp, _build_services())
+
+    factions = mcp._tool_manager._tools["list_factions"].fn(limit=10, offset=5)
+    subjects = mcp._tool_manager._tools["list_subjects"].fn(limit=3, offset=2)
+
+    assert factions["next_offset"] == 6
+    assert factions["results"][0]["name"] == "Partij van de Arbeid"
+    assert subjects["next_offset"] == 3
+    assert len(subjects["results"]) == 1
+
+
+def test_search_tools_pass_max_results_to_underlying_services() -> None:
+    mcp = FastMCP("test")
+    services = _build_services()
+    register_unified_tools(mcp, services)
+
+    activities = mcp._tool_manager._tools["search_activities"].fn(keyword="ai", max_results=7)
+    votes = mcp._tool_manager._tools["search_votes"].fn(faction="PvdA", max_results=6)
+
+    assert activities["returned_count"] == 1
+    assert votes["returned_count"] == 1
+
+
+def test_get_dossier_timeline_reports_total_count_and_truncation() -> None:
+    mcp = FastMCP("test")
+    register_unified_tools(mcp, _build_services())
+
+    payload = asyncio.run(
+        mcp._tool_manager._tools["get_dossier_timeline"].fn(
+            dossier_number="36228",
+            max_results_per_source=1,
+            timeline_limit=2,
+        )
+    )
+
+    assert payload["total_count"] == 4
+    assert payload["returned_count"] == 2
+    assert payload["truncated"] is True
+    assert len(payload["timeline"]) == 2
 
 
 def test_all_tool_groups_register_expected_names() -> None:

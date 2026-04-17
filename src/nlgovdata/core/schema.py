@@ -24,6 +24,7 @@ class UnifiedResponse:
     total_count: int | None
     returned_count: int
     results: list[dict[str, Any]]
+    next_offset: int | None = None
     warnings: list[str] = field(default_factory=list)
 
     def to_payload(self) -> dict[str, Any]:
@@ -160,8 +161,10 @@ class TimelineEvent:
 class DossierTimelineResponse:
     dossier_number: str
     dossier: Dossier | None
+    total_count: int | None
     returned_count: int
     timeline: list[dict[str, Any]]
+    truncated: bool = False
     warnings: list[str] = field(default_factory=list)
 
     def to_payload(self) -> dict[str, Any]:
